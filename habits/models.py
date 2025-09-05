@@ -5,6 +5,28 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Habit(models.Model):
+    """
+    Модель привычки пользователя.
+
+    Attributes:
+        user (ForeignKey): Пользователь, создавший привычку
+        place (CharField): Место выполнения привычки
+        time (TimeField): Время выполнения привычки
+        action (CharField): Действие привычки
+        is_pleasant (BooleanField): Признак приятной привычки
+        linked_habit (ForeignKey): Связанная приятная привычка
+        frequency (PositiveIntegerField): Периодичность выполнения (в днях)
+        reward (CharField): Вознаграждение за выполнение
+        duration (PositiveIntegerField): Время на выполнение (в секундах)
+        is_public (BooleanField): Признак публичности привычки
+        created_at (DateTimeField): Дата создания привычки
+        last_reminder_sent (DateTimeField): Время последнего отправленного напоминания
+
+    Methods:
+        clean(): Валидация данных модели
+        save(): Сохранение с предварительной валидацией
+    """
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

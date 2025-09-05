@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'corsheaders',
     "django_celery_beat",
+    'drf_yasg',
 
     'users',
     'habits',
@@ -136,38 +137,3 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 # Настройки Celery Beat
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-
-
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': 'debug.log',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console', 'file'],
-#             'level': 'INFO',
-#             'propagate': True,
-#         },
-#         'telegram_bot': {
-#             'handlers': ['console', 'file'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#         'habits': {
-#             'handlers': ['console', 'file'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#     },
-# }

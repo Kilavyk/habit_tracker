@@ -4,6 +4,15 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
+    """
+    Модель для связи пользователя с Telegram аккаунтом.
+
+    Attributes:
+        user (OneToOneField): Связанный пользователь системы
+        chat_id (BigIntegerField): ID чата в Telegram
+        telegram_username (CharField): Имя пользователя в Telegram
+    """
+
     email = models.EmailField(
         _('email address'),
         unique=True,

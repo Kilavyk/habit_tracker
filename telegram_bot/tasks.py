@@ -10,6 +10,21 @@ from telegram_bot.models import TelegramUser
 
 @shared_task
 def send_telegram_reminder():
+    """
+    Фоновая задача для отправки напоминаний о привычках через Telegram.
+
+    Logic:
+        - Проверяет привычки каждую минуту
+        - Отправляет напоминание, если время привычки совпадает с текущим (±1 минута)
+        - Учитывает периодичность привычки
+        - Обновляет время последнего напоминания
+
+    Conditions:
+        - Привычка должна быть активна
+        - Пользователь должен иметь привязанный Telegram аккаунт
+        - Не отправляет повторные напоминания в тот же день
+    """
+
     now = timezone.localtime()
     current_time = now.time().replace(second=0, microsecond=0)
     current_date = now.date()

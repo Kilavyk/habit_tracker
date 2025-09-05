@@ -12,7 +12,17 @@ django.setup()
 
 
 async def send_telegram_message_async(chat_id, text):
-    """Асинхронная отправка сообщений в Telegram"""
+    """
+    Асинхронная отправка сообщения в Telegram.
+
+    Args:
+        chat_id (int): ID чата получателя
+        text (str): Текст сообщения
+
+    Returns:
+        bool: True если отправка успешна, False в случае ошибки
+    """
+
     try:
         async with aiohttp.ClientSession() as session:
             async with async_timeout.timeout(10):
@@ -27,7 +37,17 @@ async def send_telegram_message_async(chat_id, text):
 
 
 async def handle_start_command_async(chat_id, username):
-    """Асинхронная обработка команды /start"""
+    """
+    Асинхронная отправка сообщения в Telegram.
+
+    Args:
+        chat_id (int): ID чата получателя
+        text (str): Текст сообщения
+
+    Returns:
+        bool: True если отправка успешна, False в случае ошибки
+    """
+
     from users.models import User
     from telegram_bot.models import TelegramUser
 
@@ -87,7 +107,17 @@ async def handle_start_command_async(chat_id, username):
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обработчик команды /start"""
+    """
+    Обработчик команды /start для Telegram бота.
+
+    Usage:
+        /start username - привязка аккаунта
+
+    Args:
+        update: Объект обновления Telegram
+        context: Контекст выполнения команды
+    """
+
     if context.args:
         username = context.args[0]
         await handle_start_command_async(update.effective_chat.id, username)
@@ -96,7 +126,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 def run_bot():
-    """Запуск бота"""
+    """
+    Запуск Telegram бота с обработчиком команды /start.
+
+    Features:
+        - Асинхронная обработка сообщений
+        - Интеграция с Django ORM
+        - Обработка ошибок базы данных
+    """
     application = Application.builder().token(settings.TELEGRAM_BOT_TOKEN).build()
 
     # Добавляем обработчики

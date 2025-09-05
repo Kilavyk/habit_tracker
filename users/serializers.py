@@ -3,7 +3,39 @@ from django.contrib.auth.password_validation import validate_password
 from .models import User
 
 
+class UserLoginSerializer(serializers.Serializer):
+    """
+    Сериализатор для модели TelegramUser.
+
+    Provides:
+        - Сериализация данных Telegram пользователя
+        - Автоматическое связывание с текущим пользователем
+    """
+
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        ref_name = "UserLogin"
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для регистрации нового пользователя.
+
+    Fields:
+        username (str): Имя пользователя
+        email (str): Email адрес
+        password (str): Пароль
+        password2 (str): Подтверждение пароля
+        first_name (str): Имя
+        last_name (str): Фамилия
+
+    Validation:
+        - Проверка совпадения паролей
+        - Валидация сложности пароля
+    """
+
     password = serializers.CharField(
         write_only=True,
         required=True,
@@ -27,6 +59,16 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для отображения данных пользователя.
+
+    Fields:
+        id (int): ID пользователя (read-only)
+        username (str): Имя пользователя
+        email (str): Email адрес
+        first_name (str): Имя
+        last_name (str): Фамилия
+    """
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
