@@ -1,10 +1,11 @@
-from rest_framework.views import APIView
+from django.contrib.auth import authenticate
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+
 from .models import User
-from .serializers import UserRegistrationSerializer, UserSerializer, UserLoginSerializer
+from .serializers import UserRegistrationSerializer, UserSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -41,11 +42,14 @@ class UserRegistrationView(generics.CreateAPIView):
         # Генерируем JWT токены
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            'user': UserSerializer(user).data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "user": UserSerializer(user).data,
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class UserLoginView(APIView):
@@ -69,22 +73,23 @@ class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        username = request.data.get("username")
+        password = request.data.get("password")
 
         user = authenticate(username=username, password=password)
 
         if user:
             refresh = RefreshToken.for_user(user)
-            return Response({
-                'user': UserSerializer(user).data,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            })
+            return Response(
+                {
+                    "user": UserSerializer(user).data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            )
 
         return Response(
-            {'error': 'Invalid credentials'},
-            status=status.HTTP_401_UNAUTHORIZED
+            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )
 
 

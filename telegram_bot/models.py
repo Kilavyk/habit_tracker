@@ -1,6 +1,7 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 
 class TelegramUser(models.Model):
     """
@@ -15,25 +16,19 @@ class TelegramUser(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='telegram_user',
-        verbose_name=_('пользователь')
+        related_name="telegram_user",
+        verbose_name=_("пользователь"),
     )
     chat_id = models.BigIntegerField(
-        _('Telegram Chat ID'),
-        null=True,
-        blank=True,
-        unique=True
+        _("Telegram Chat ID"), null=True, blank=True, unique=True
     )
     telegram_username = models.CharField(
-        _('Telegram username'),
-        max_length=255,
-        null=True,
-        blank=True
+        _("Telegram username"), max_length=255, null=True, blank=True
     )
 
     class Meta:
-        verbose_name = _('Telegram пользователь')
-        verbose_name_plural = _('Telegram пользователи')
+        verbose_name = _("Telegram пользователь")
+        verbose_name_plural = _("Telegram пользователи")
 
     def __str__(self):
         return f"{self.user} - {self.telegram_username}"

@@ -1,5 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+
 from .models import TelegramUser
 from .serializers import TelegramUserSerializer
 
@@ -23,7 +24,7 @@ class TelegramUserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return TelegramUser.objects.none()
 
         return TelegramUser.objects.filter(user=self.request.user)

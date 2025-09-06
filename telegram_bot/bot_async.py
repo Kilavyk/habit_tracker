@@ -1,13 +1,14 @@
 import os
+
+import aiohttp
+import async_timeout
 import django
+from asgiref.sync import sync_to_async
 from django.conf import settings
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
-import aiohttp
-import async_timeout
-from asgiref.sync import sync_to_async
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 django.setup()
 
 
@@ -27,8 +28,8 @@ async def send_telegram_message_async(chat_id, text):
         async with aiohttp.ClientSession() as session:
             async with async_timeout.timeout(10):
                 async with session.post(
-                        f'https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage',
-                        data={'chat_id': chat_id, 'text': text}
+                    f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage",
+                    data={"chat_id": chat_id, "text": text},
                 ) as response:
                     return response.status == 200
     except Exception as e:
@@ -48,12 +49,12 @@ async def handle_start_command_async(chat_id, username):
         bool: True если отправка успешна, False в случае ошибки
     """
 
-    from users.models import User
     from telegram_bot.models import TelegramUser
+    from users.models import User
 
     try:
         # Убираем @ если есть
-        if username.startswith('@'):
+        if username.startswith("@"):
             username = username[1:]
         username = username.strip()
 
@@ -61,22 +62,25 @@ async def handle_start_command_async(chat_id, username):
         try:
             user = await sync_to_async(User.objects.get)(username=username)
         except User.DoesNotExist:
-            await send_telegram_message_async(chat_id, f"❌ Пользователь '{username}' не найден. Проверьте username.")
+            await send_telegram_message_async(
+                chat_id, f"❌ Пользователь '{username}' не найден. Проверьте username."
+            )
             return False
 
         # Пытаемся создать или обновить запись
         try:
             telegram_user, created = await sync_to_async(
                 TelegramUser.objects.update_or_create
-            )(
-                user=user,
-                defaults={'chat_id': chat_id, 'telegram_username': username}
-            )
+            )(user=user, defaults={"chat_id": chat_id, "telegram_username": username})
 
             if created:
-                message = f"✅ Аккаунт привязан! Вы будете получавать напоминания о привычках."
+                message = (
+                    "✅ Аккаунт привязан! Вы будете получавать напоминания о привычках."
+                )
             else:
-                message = f"✅ Аккаунт перепривязан! Теперь вы будете получать напоминания."
+                message = (
+                    "✅ Аккаунт перепривязан! Теперь вы будете получать напоминания."
+                )
 
             await send_telegram_message_async(chat_id, message)
             return True
@@ -87,22 +91,30 @@ async def handle_start_command_async(chat_id, username):
 
             # Пробуем получить существующую запись и обновить её
             try:
-                existing = await sync_to_async(TelegramUser.objects.get)(chat_id=chat_id)
+                existing = await sync_to_async(TelegramUser.objects.get)(
+                    chat_id=chat_id
+                )
                 existing.user = user
                 existing.telegram_username = username
                 await sync_to_async(existing.save)()
 
-                message = f"✅ Аккаунт перепривязан! Теперь вы будете получать напоминания."
+                message = (
+                    "✅ Аккаунт перепривязан! Теперь вы будете получать напоминания."
+                )
                 await send_telegram_message_async(chat_id, message)
                 return True
             except Exception as e:
                 print(f"Ошибка при обновлении существующей записи: {e}")
-                await send_telegram_message_async(chat_id, "❌ Ошибка привязки. Попробуйте позже.")
+                await send_telegram_message_async(
+                    chat_id, "❌ Ошибка привязки. Попробуйте позже."
+                )
                 return False
 
     except Exception as e:
         print(f"Ошибка в функции handle_start_command_async: {e}")
-        await send_telegram_message_async(chat_id, "❌ Ошибка привязки. Попробуйте позже.")
+        await send_telegram_message_async(
+            chat_id, "❌ Ошибка привязки. Попробуйте позже."
+        )
         return False
 
 
@@ -143,5 +155,5 @@ def run_bot():
     application.run_polling()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_bot()
