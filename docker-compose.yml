@@ -1,0 +1,108 @@
+services:
+  web:
+    build: .
+    command: >
+      sh -c "
+
+      while ! pg_isready -h db -U $$USER -d $$NAME; do
+        echo 'Waiting for PostgreSQL to become available...'
+        sleep 2
+      done;
+      
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:8000
+      "
+    volumes:
+      - .:/code
+      - static_volume:/code/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+    depends_on:
+      - web
+
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${NAME}
+      POSTGRES_USER: ${USER}
+      POSTGRES_PASSWORD: ${PASSWORD}
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  celery:
+    build: .
+    command: >
+      sh -c "
+      
+      while ! pg_isready -h db -U $$USER -d $$NAME; do
+        echo 'Waiting for PostgreSQL to become available...'
+        sleep 2
+      done;
+
+      celery -A config worker --loglevel=info -P eventlet
+      "
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+
+  celery-beat:
+    build: .
+    command: >
+      sh -c "
+
+      while ! pg_isready -h db -U $$USER -d $$NAME; do
+        echo 'Waiting for PostgreSQL to become available...'
+        sleep 2
+      done;
+
+      sleep 15;
+      celery -A config beat --loglevel=info
+      "
+    depends_on:
+      - web
+      - db
+      - redis
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+
+  telegram_bot:
+    build: .
+    command: python -m telegram_bot.bot_async
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+
+volumes:
+  postgres_data:
+  static_volume:
+
+
