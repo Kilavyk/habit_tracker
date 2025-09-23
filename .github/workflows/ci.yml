@@ -83,10 +83,10 @@ jobs:
     - name: Deploy to Server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
-          docker stop django-habit-tracker || true
-          docker rm django-habit-tracker || true
-          docker run -d --name django-rest-app -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
+          sudo docker stop django-habit-tracker || true
+          sudo docker rm django-habit-tracker || true
+          sudo docker run -d --name django-rest-app -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
         EOF
 
 
