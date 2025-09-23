@@ -86,8 +86,20 @@ jobs:
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
           sudo docker stop django-habit-tracker || true
           sudo docker rm django-habit-tracker || true
-          sudo docker run -d --name django-habit-tracker -p 80:8000 ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
-        EOF
+          sudo docker run -d \
+            --name django-habit-tracker \
+            -p 80:8000 \
+            -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
+            -e DEBUG='${{ secrets.DEBUG }}' \
+            -e NAME='${{ secrets.NAME }}' \
+            -e USER='${{ secrets.USER }}' \
+            -e PASSWORD='${{ secrets.PASSWORD }}' \
+            -e HOST='${{ secrets.HOST }}' \
+            -e PORT='${{ secrets.PORT }}' \
+            -e CELERY_BROKER_URL='${{ secrets.CELERY_BROKER_URL }}' \
+            -e CELERY_RESULT_BACKEND='${{ secrets.CELERY_RESULT_BACKEND }}' \
+            -e TELEGRAM_BOT_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}' \
+            ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
 
 
 
