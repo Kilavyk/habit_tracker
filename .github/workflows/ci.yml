@@ -83,23 +83,35 @@ jobs:
     - name: Deploy to Server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << EOF
-          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
-          sudo docker stop django-habit-tracker || true
-          sudo docker rm django-habit-tracker || true
-          sudo docker run -d \
-            --name django-habit-tracker \
-            -p 80:8000 \
-            -e SECRET_KEY='${{ secrets.SECRET_KEY }}' \
-            -e DEBUG='${{ secrets.DEBUG }}' \
-            -e NAME='${{ secrets.NAME }}' \
-            -e USER='${{ secrets.USER }}' \
-            -e PASSWORD='${{ secrets.PASSWORD }}' \
-            -e HOST='${{ secrets.HOST }}' \
-            -e PORT='${{ secrets.PORT }}' \
-            -e CELERY_BROKER_URL='${{ secrets.CELERY_BROKER_URL }}' \
-            -e CELERY_RESULT_BACKEND='${{ secrets.CELERY_RESULT_BACKEND }}' \
-            -e TELEGRAM_BOT_TOKEN='${{ secrets.TELEGRAM_BOT_TOKEN }}' \
-            ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
-
+          cd habit_tracker
+          # Создаем .env файл
+          cat > .env << 'ENV_EOF'
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          NAME=${{ secrets.NAME }}
+          USER=${{ secrets.USER }}
+          PASSWORD=${{ secrets.PASSWORD }}
+          HOST=${{ secrets.HOST }}
+          PORT=${{ secrets.PORT }}
+                           
+          
+          DEBUG=True
+          
+          # Stripe
+          STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_API_VERSION=${{ secrets.STRIPE_API_VERSION }}
+          STRIPE_PUBLISHABLE_KEY=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        
+          CELERY_BROKER_URL=redis://redis:6379/0
+          CELERY_RESULT_BACKEND=redis://redis:6379/0
+          ENV_EOF
+        
+          git pull
+          
+          # Останавливаем старые контейнеры, если они есть
+          sudo docker compose down || true
+          # Собираем и запускаем контейнеры
+          sudo docker compose up -d --build
+        
+    
 
 
