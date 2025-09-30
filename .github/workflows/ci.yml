@@ -84,25 +84,7 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
           cd habit_tracker
-          # Создаем .env файл
-          cat > .env << 'ENV_EOF' # Кавычки важны, чтобы не подставлялись значения переменных локально
-        
-          SECRET_KEY=${{ secrets.SECRET_KEY }}
-        
-          NAME=${{ secrets.NAME }}
-          USER=${{ secrets.USER }}
-          PASSWORD=${{ secrets.PASSWORD }}
-          HOST=${{ secrets.HOST }}
-          PORT=${{ secrets.PORT }}
-        
-          DEBUG=True
 
-          CELERY_BROKER_URL=redis://redis:6379/0
-          CELERY_RESULT_BACKEND=redis://redis:6379/0
-        
-          ENV_EOF # Закрывает here document для cat > .env
-        
-          # Команды, которые должны выполниться на сервере
           git pull
           sudo docker compose down || true
           sudo docker compose up -d --build
