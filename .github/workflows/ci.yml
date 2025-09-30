@@ -71,7 +71,7 @@ jobs:
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/django-habit-tracker:${{ github.sha }}
 
   deploy:
-    needs: build
+#    needs: build
     runs-on: ubuntu-latest
 
     steps:

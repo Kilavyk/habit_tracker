@@ -4,11 +4,7 @@ services:
     command: >
       sh -c "
 
-      while ! pg_isready -h db -U $$USER -d $$NAME; do
-        echo 'Waiting for PostgreSQL to become available...'
-        sleep 2
-      done;
-      
+      sleep 10 &&
       python manage.py migrate &&
       python manage.py runserver 0.0.0.0:8000
       "
@@ -39,8 +35,9 @@ services:
       - ./.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
     ports:
-      - "5433:5432"
+      - "5432:5432"
 
   redis:
     image: redis:alpine
@@ -52,11 +49,7 @@ services:
     command: >
       sh -c "
       
-      while ! pg_isready -h db -U $$USER -d $$NAME; do
-        echo 'Waiting for PostgreSQL to become available...'
-        sleep 2
-      done;
-
+      sleep 10 &&
       celery -A config worker --loglevel=info -P eventlet
       "
     depends_on:
@@ -72,12 +65,7 @@ services:
     command: >
       sh -c "
 
-      while ! pg_isready -h db -U $$USER -d $$NAME; do
-        echo 'Waiting for PostgreSQL to become available...'
-        sleep 2
-      done;
-
-      sleep 15;
+      sleep 10 &&
       celery -A config beat --loglevel=info
       "
     depends_on:
