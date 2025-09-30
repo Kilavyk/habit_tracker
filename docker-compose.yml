@@ -39,10 +39,6 @@ services:
       - ./.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: habit_tracker
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 192202
     ports:
       - "5433:5432"
 
